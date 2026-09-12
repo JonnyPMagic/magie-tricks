@@ -564,29 +564,53 @@
   .hero-sparkle.s2{ top:32%; right:15%; width:9px; height:9px; color:var(--violet); animation-delay:2.3s; }
   .hero-sparkle.s3{ top:60%; right:1%; width:11px; height:11px; animation-delay:3.2s; }
   @keyframes sparkleTwinkle{
-    0%, 100%{ opacity:0; transform:scale(0.5) rotate(0deg); }
-    50%{ opacity:0.75; transform:scale(1) rotate(18deg); }
+    0%, 100%{ opacity:0; transform:translateY(var(--sp, 0px)) scale(0.5) rotate(0deg); }
+    50%{ opacity:0.75; transform:translateY(var(--sp, 0px)) scale(1) rotate(18deg); }
   }
 
-  /* Bühnenlicht: sehr langsam atmender Glanz hinter dem Hero */
+  /* Bühnenlicht: sehr langsam atmender Glanz hinter dem Hero, driftet leicht beim Scrollen (Parallax) */
   .hero{ z-index:1; }
   .hero::before{
-    content:''; position:absolute; z-index:-1; top:-60px; left:50%; transform:translateX(-50%);
+    content:''; position:absolute; z-index:-1; top:-60px; left:50%;
+    transform:translate(-50%, var(--parallax-y, 0px));
     width:520px; height:320px; max-width:140vw;
     background:radial-gradient(ellipse at center, rgba(155,123,255,0.16), transparent 68%);
     animation:stageBreathe 7s ease-in-out infinite; pointer-events:none;
   }
   @keyframes stageBreathe{ 0%, 100%{ opacity:0.6; } 50%{ opacity:1; } }
 
-  /* Scroll-Reveal für Sektionen */
-  .reveal{
-    opacity:0; transform:translateY(28px);
-    transition:opacity 0.8s cubic-bezier(.16,.8,.24,1), transform 0.8s cubic-bezier(.16,.8,.24,1);
+  /* Magischer Lichtschein, der dem Mauszeiger im Hero folgt (nur Desktop/Maus) */
+  .hero::after{
+    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    opacity:0; transition:opacity 0.4s ease;
+    background:radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(230,189,114,0.14), transparent 70%);
   }
-  .reveal.in-view{ opacity:1; transform:none; }
+  .hero.has-spotlight::after{ opacity:1; }
 
-  /* Karten: Anheben + Glow beim Hover (Desktop) */
-  .card{ transition:transform 0.3s cubic-bezier(.16,.8,.24,1), box-shadow 0.3s ease, border-color 0.3s ease; }
+  /* Scroll-Reveal für Sektionen: sanftes Materialisieren aus Unschärfe */
+  .reveal{
+    opacity:0; transform:translateY(32px) scale(0.97); filter:blur(6px);
+    transition:opacity 0.9s cubic-bezier(.16,.8,.24,1), transform 0.9s cubic-bezier(.16,.8,.24,1), filter 0.9s ease;
+    will-change:opacity, transform, filter;
+  }
+  .reveal.in-view{ opacity:1; transform:none; filter:blur(0); }
+
+  /* Fortschrittsanzeige oben: füllt sich beim Scrollen durch die Seite */
+  .scroll-progress{
+    position:fixed; top:0; left:0; width:100%; height:3px; z-index:90;
+    background:rgba(255,255,255,0.05); pointer-events:none;
+  }
+  .scroll-progress-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--violet), var(--gold));
+    box-shadow:0 0 14px rgba(230,189,114,0.6);
+  }
+
+  /* Karten: Anheben + Glow beim Hover (Desktop), inkl. sanftem Erscheinen */
+  .card{
+    transition:transform 0.3s cubic-bezier(.16,.8,.24,1), box-shadow 0.3s ease, border-color 0.3s ease,
+      opacity 0.9s cubic-bezier(.16,.8,.24,1), filter 0.9s ease;
+  }
   .card:hover{ transform:translateY(-4px); border-color:rgba(230,189,114,0.5); box-shadow:0 34px 64px -30px rgba(0,0,0,0.95); }
   .card:hover .tier-icon{ box-shadow:0 0 0 6px rgba(230,189,114,0.16); }
   .card:hover .card-titles h3{ color:var(--gold); }
@@ -622,7 +646,9 @@
     .hero-kicker, .eyebrow, .hero p, .hero-badges, .voice-note{ opacity:1; transform:none; }
     .eyebrow .accent{ background:none; -webkit-text-fill-color:unset; color:var(--gold); }
     .hero-sparkle{ display:none; }
-    .reveal{ opacity:1; transform:none; transition:none; }
+    .reveal{ opacity:1; transform:none; filter:none; transition:none; }
+    .card{ transition:box-shadow 0.3s ease, border-color 0.3s ease; }
+    .scroll-progress-fill{ transition:none; }
   }
 </style>
 </head>
@@ -634,6 +660,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <canvas id="confetti-canvas"></canvas>
+
+<div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill" id="scroll-progress-fill"></div></div>
 
 <div class="wrap">
 
@@ -1406,6 +1434,7 @@
     }
   }
 
+  var firstRender = true;
   function render(justUnlockedId){
     var unlocked = getUnlocked();
 
@@ -1429,11 +1458,15 @@
     var list = document.getElementById('list');
     list.innerHTML = '';
 
-    TRICKS.forEach(function(trick){
+    TRICKS.forEach(function(trick, trickIdx){
       var unlockedNow = isUnlocked(trick, unlocked);
       var card = document.createElement('div');
       card.className = 'card ' + (unlockedNow ? 'is-unlocked' : 'is-locked') + (trick.autoOnComplete ? ' is-bonus' : '');
       card.id = 'card-' + trick.id;
+      if(firstRender){
+        card.classList.add('reveal');
+        card.style.transitionDelay = (Math.min(trickIdx, 7) * 70) + 'ms';
+      }
 
       var pillClass = trick.free ? 'free' : (trick.autoOnComplete ? 'secret' : (unlockedNow ? 'unlocked' : 'locked'));
       var pillText = trick.free ? 'Frei' : (unlockedNow ? (trick.autoOnComplete ? 'Enthüllt' : 'Freigeschaltet') : (trick.autoOnComplete ? 'Geheim' : 'Gesperrt'));
@@ -1487,6 +1520,7 @@
     }
 
     if(typeof renderIdCard === 'function'){ renderIdCard(unlocked); }
+    firstRender = false;
   }
 
   /* ---------------- universal code redemption ---------------- */
@@ -1840,6 +1874,58 @@
       });
     }, { threshold:0.12, rootMargin:'0px 0px -40px 0px' });
     els.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---------------- Scroll-Fortschritt + Parallax-Effekte ---------------- */
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var progressFillEl = document.getElementById('scroll-progress-fill');
+  var heroEl = document.querySelector('.hero');
+  var sparkleEls = document.querySelectorAll('.hero-sparkle');
+  var scrollTicking = false;
+
+  function updateOnScroll(){
+    scrollTicking = false;
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var scrollable = (doc.scrollHeight - doc.clientHeight) || 1;
+    var pct = Math.min(100, Math.max(0, (scrollTop / scrollable) * 100));
+    if(progressFillEl){ progressFillEl.style.width = pct + '%'; }
+
+    if(!prefersReducedMotion){
+      if(heroEl){
+        heroEl.style.setProperty('--parallax-y', (scrollTop * 0.18) + 'px');
+      }
+      sparkleEls.forEach(function(el, i){
+        var depth = 0.06 + i * 0.035;
+        el.style.setProperty('--sp', (scrollTop * depth * -1) + 'px');
+      });
+    }
+  }
+
+  function onScroll(){
+    if(!scrollTicking){
+      scrollTicking = true;
+      window.requestAnimationFrame(updateOnScroll);
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  updateOnScroll();
+
+  /* Magischer Lichtschein im Hero folgt der Maus (nur bei Geräten mit echtem Mauszeiger) */
+  if(heroEl && !prefersReducedMotion && window.matchMedia && window.matchMedia('(pointer:fine)').matches){
+    heroEl.addEventListener('mousemove', function(ev){
+      var rect = heroEl.getBoundingClientRect();
+      var x = ((ev.clientX - rect.left) / rect.width) * 100;
+      var y = ((ev.clientY - rect.top) / rect.height) * 100;
+      heroEl.style.setProperty('--mx', x + '%');
+      heroEl.style.setProperty('--my', y + '%');
+      heroEl.classList.add('has-spotlight');
+    });
+    heroEl.addEventListener('mouseleave', function(){
+      heroEl.classList.remove('has-spotlight');
+    });
   }
 
   render();
