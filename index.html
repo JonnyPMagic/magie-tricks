@@ -842,10 +842,15 @@
        automatisch frei, sobald alle Tricks in dependsOn frei sind
        (kein eigener Code).
 
-     Welcher 9-stellige Mystery-Machine-Code welchen Trick freischaltet,
-     steht NICHT hier, sondern unten in CODE_MAP (nur als Hash, nicht im
-     Klartext — die Klartext-Codes stehen in der codes-database.csv,
-     die du separat bekommst, zum Drucken auf die Rückseite der Marken).
+     Codes sind NICHT fest einem bestimmten Trick zugeordnet: jeder
+     gültige, noch nicht benutzte 9-stellige Mystery-Machine-Code
+     schaltet einfach den jeweils nächsten noch gesperrten Trick in
+     dieser Reihenfolge frei (Anfänger → Fortgeschritten → Profi),
+     egal ob auf dem Code "Anfänger", "Fortgeschritten" oder "Profi"
+     stand. Die Liste der gültigen Codes (nur als Hash, nicht im
+     Klartext) steht unten in CODE_MAP — die Klartext-Codes stehen in
+     der codes-database.csv, die du separat bekommst, zum Drucken auf
+     die Rückseite der Marken.
      ============================================================ */
   var TRICKS = [
     {
@@ -875,9 +880,14 @@
     }
   ];
 
-  /* CODE_MAP: SHA-256-Hash des 9-stelligen Codes -> welcher Trick sich
-     damit freischaltet. 100 Codes für "Anfänger", 100 für "Fortgeschritten",
-     100 für "Profi" (Klartext-Listen: beginner-codes.csv / codes-database.csv).
+  /* CODE_MAP: SHA-256-Hash des 9-stelligen Codes -> Stufe, die auf dem
+     Code aufgedruckt war ("beginner"/"advanced"/"pro" — nur zur
+     Nachverfolgung/Statistik). Für die Freischalt-Logik zählt NUR, ob
+     der Hash hier als Schlüssel existiert (= gültiger Code) — welcher
+     Trick sich öffnet, wird stattdessen der Reihe nach bestimmt
+     (siehe nextTrickToUnlock weiter unten), unabhängig von der Stufe.
+     100 Codes für "Anfänger", 100 für "Fortgeschritten", 100 für "Profi"
+     (Klartext-Listen: beginner-codes.csv / codes-database.csv).
      Weitere Codes jederzeit auf Zuruf nachgeneriert — einfach sagen, wie
      viele und für welche Stufe. */
 
@@ -1185,12 +1195,39 @@
     };
 
   var STORE_KEY = 'jpm_unlocked_tricks_v1';
+  var REDEEMED_STORE_KEY = 'jpm_redeemed_codes_v1';
 
   function getUnlocked(){
     try{ return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }catch(e){ return []; }
   }
   function setUnlocked(list){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  /* Welche Code-Hashes in DIESEM Browser schon eingelöst wurden — nötig,
+     weil Codes nicht mehr fest einem bestimmten Trick zugeordnet sind
+     (siehe CODE_MAP-Kommentar): jeder NEUE, gültige Code schaltet einfach
+     den jeweils nächsten noch gesperrten Trick frei, egal welche Stufe
+     auf dem Code stand. Damit ein Code nicht mehrfach benutzt werden kann,
+     um sich so durch mehrere Tricks zu "klicken", merken wir uns hier,
+     welche Codes schon verbraucht sind. */
+  function getRedeemedCodes(){
+    try{ return JSON.parse(localStorage.getItem(REDEEMED_STORE_KEY) || '[]'); }catch(e){ return []; }
+  }
+  function setRedeemedCodes(list){
+    try{ localStorage.setItem(REDEEMED_STORE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  /* Liefert die id des nächsten noch gesperrten Haupttricks (in der
+     Reihenfolge in TRICKS: Anfänger → Fortgeschritten → Profi), oder
+     null, wenn schon alle Haupttricks frei sind. Der Geheimtrick (bonus)
+     zählt hier nicht mit — der schaltet sich automatisch frei. */
+  function nextTrickToUnlock(unlocked){
+    var main = TRICKS.filter(function(t){ return !t.autoOnComplete; });
+    for(var i = 0; i < main.length; i++){
+      if(unlocked.indexOf(main[i].id) === -1){ return main[i].id; }
+    }
+    return null;
   }
 
   /* Vorschau-Hilfen für Jonny (unsichtbar für normale Besucher, kein Effekt
@@ -1206,6 +1243,7 @@
         setUnlocked(TRICKS.map(function(t){ return t.id; }));
       } else if(params.get('reset') === '1'){
         setUnlocked([]);
+        setRedeemedCodes([]);
       }
     }catch(e){}
   })();
@@ -1549,25 +1587,38 @@
     }
 
     var hash = await sha256Hex(raw);
-    var trickId = CODE_MAP[hash];
 
-    if(!trickId){
+    if(!CODE_MAP.hasOwnProperty(hash)){
       redeemMsg.className = 'msg error';
       redeemMsg.textContent = 'Unbekannter Code — bitte nochmal prüfen und erneut eingeben.';
       redeemForm.classList.remove('shake'); void redeemForm.offsetWidth; redeemForm.classList.add('shake');
       return;
     }
 
-    var trick = TRICKS.filter(function(t){ return t.id === trickId; })[0];
-    var unlocked = getUnlocked();
-
-    if(unlocked.indexOf(trickId) !== -1){
+    var redeemed = getRedeemedCodes();
+    if(redeemed.indexOf(hash) !== -1){
       redeemMsg.className = 'msg success';
-      redeemMsg.textContent = 'Diesen Trick (' + trick.tier + ') hast du bereits freigeschaltet — scroll runter, um ihn anzusehen.';
+      redeemMsg.textContent = 'Dieser Code wurde bereits eingelöst — scroll runter, um deinen Fortschritt zu sehen.';
       redeemInput.value = '';
       return;
     }
 
+    var unlocked = getUnlocked();
+    var trickId = nextTrickToUnlock(unlocked);
+
+    if(!trickId){
+      redeemed.push(hash);
+      setRedeemedCodes(redeemed);
+      redeemMsg.className = 'msg success';
+      redeemMsg.textContent = 'Du hast bereits alle Tricks freigeschaltet — dieser Code wird nicht mehr gebraucht.';
+      redeemInput.value = '';
+      return;
+    }
+
+    var trick = TRICKS.filter(function(t){ return t.id === trickId; })[0];
+
+    redeemed.push(hash);
+    setRedeemedCodes(redeemed);
     unlocked.push(trickId);
     setUnlocked(unlocked);
     redeemMsg.className = 'msg success';
