@@ -477,8 +477,7 @@
     <div class="hero-kicker">Eigene Tricks zum Lernen</div>
     <h1 class="eyebrow">Magie <span class="accent">aber anders</span></h1>
     <p>Eigene Tricks zum Lernen — von Anfänger bis Profi, unabhängig von meiner Bühnenshow.
-       Der Anfänger-Trick ist immer frei zugänglich. Fortgeschrittene und Profi-Tricks
-       schaltest du mit einem Code frei, den meine Mystery Machine ausgibt.</p>
+       Jeden Trick schaltest du mit einem Code frei, den meine Mystery Machine ausgibt.</p>
     <p class="small">Auf jedem Mystery-Machine-Code steht ein 9-stelliger Freischalt-Code —
        den gibst du unten ein. Welcher Trick sich öffnet, bleibt bis dahin eine Überraschung.</p>
     <div class="hero-badges">
@@ -650,9 +649,9 @@
   var TRICKS = [
     {
       id:'beginner', tier:'Anfänger', tierClass:'',
-      title:'Das Seil, das sich selbst repariert', sub:'Frei zugänglich',
+      title:'Das Seil, das sich selbst repariert', sub:'Code aus der Mystery Machine',
       teaser:'Ein Seil reißt entzwei — und ist im nächsten Moment wieder ganz, direkt vor den Augen deines Publikums.',
-      free:true, videoEmbed:'https://www.youtube.com/embed/kXxjmm6w2a8'
+      free:false, videoEmbed:'https://www.youtube.com/embed/kXxjmm6w2a8'
     },
     {
       id:'advanced', tier:'Fortgeschritten', tierClass:'mid',
@@ -676,11 +675,112 @@
   ];
 
   /* CODE_MAP: SHA-256-Hash des 9-stelligen Codes -> welcher Trick sich
-     damit freischaltet. 100 Codes für "Fortgeschritten", 100 für "Profi"
-     (Klartext-Liste: codes-database.csv). Weitere Codes jederzeit auf
-     Zuruf nachgeneriert — einfach sagen, wie viele und für welche Stufe. */
+     damit freischaltet. 100 Codes für "Anfänger", 100 für "Fortgeschritten",
+     100 für "Profi" (Klartext-Listen: beginner-codes.csv / codes-database.csv).
+     Weitere Codes jederzeit auf Zuruf nachgeneriert — einfach sagen, wie
+     viele und für welche Stufe. */
 
   var CODE_MAP = {
+      '76569f95166dd033109a6afba9cf9aee9e6971071b6e63d9517d7c597ccf6065': 'beginner',
+      'e82a826895e79fb9c7c7dc501f888d10722790008d1fb9d69e4dcef433d5316e': 'beginner',
+      '4ef18264d27656dd6e27f5c6accaaa9929681b72d4037bbc886b46f44edbb2f0': 'beginner',
+      '8f623e7c11bda201e59f82644a86a9eb74621cebf959818f69dd5549b10a7ca7': 'beginner',
+      '85501822c95580a5a458753c28e2f408268a069c0fb7bd3175f791aa31d301c6': 'beginner',
+      'a710fe7a9014d742d4166804e1ca1a7becd0abd19fe269f34880247505c52173': 'beginner',
+      'a3036aa9cf0ac9a192669f5c7db630014c9f50f658bdbff5585c13321d57f773': 'beginner',
+      'd78cd49ee68fc361bfcd68505f592cfc7a5b64afd8892f8f36bc5a9e26e2a84e': 'beginner',
+      '466f78cd83d384467472919e45ec1c9647de66893e86bb652c0c11af2fd1f375': 'beginner',
+      'b2b80ed92a190a100d8ba7280aedf3a8c8df52cb6bc88f39ed3abd327a694a93': 'beginner',
+      '24793cba3094f7a3381ae1d9d222fad596844dc5aeef7240917d4ac7d6fd194d': 'beginner',
+      '32db8a87f9425222d74743595b988b3cc9cab2231edc230730bebb4a4df91ff0': 'beginner',
+      '740563d83febbda283942f223877dc180d59eb4dee4407a47e9e2d38a2f22b90': 'beginner',
+      '0ecd8765ff7b8204931efb44077d2279f866d291404362a4c3b136d41316c39a': 'beginner',
+      '5e282669e7f1222fa03f5e90021816b2635934b69ba69a0147a747c9d988e2c3': 'beginner',
+      '09428548cd678f23409f349db15cc32f26ca7cb0a15d160d20ff4d366ca14c77': 'beginner',
+      '5d75530e4d1e73d4920e160c4f1c9379a6ea9bbd8d5301373833c2706853e0c6': 'beginner',
+      'cfdc61efbf329f30acbe0000b45ac2f36b8b5ce43d01b7ff92fc575dc5d66a47': 'beginner',
+      'a10b07ae0c5d91b59401144831201d2bbfb6e0ff661fd29f14b9ad3eeef72d3a': 'beginner',
+      '6ded72cb6c48d23e449684e4f208e585b4a3f1ea1a49d01eb338feed0689c9f2': 'beginner',
+      'f7243233ae8ef586514074332f5fefda7dc1666c31547884c25303840e91ec29': 'beginner',
+      'd77c8dc9471a78f585b0bc56e5ab308d9998998e0dc3aef70e89fcda0d01da6b': 'beginner',
+      'd5cf3a17f9abfbaedcef9085e9046ce6998ecbdb5110c8fb2230b623b6afe48b': 'beginner',
+      'efd84d41586060b4c26d20d0e52688e9a4305f9079a923df009bcdcc93b4b600': 'beginner',
+      '645261a07d56f1fa1ab2d363f1fed028fb9031c5c38e17378776f2253a686a4b': 'beginner',
+      '835d6741e7c46f51fd849453784f66854973a477a9e0b45f673cb532241d1816': 'beginner',
+      '0a817197acbce604317198f263f2d6eeeadd968fe0168c7a6682cc022888be00': 'beginner',
+      'ab423f72dcb4fe5207be234779fe3c760da79af832047eef42117b7f6cf17260': 'beginner',
+      '345c2ceb78bc9ca9d5be1935b029d3e731afee7b4f398a2ef1bf1dde5dab4e8e': 'beginner',
+      '2e3bd729f873d79b0dd66d3aaee221dfe8bf3d343d9080912d8e41ff3c91610c': 'beginner',
+      '307788894e0f860164599fb4d7eb5a85f229b750e1a4633345a2b5571231b767': 'beginner',
+      '2519428e421aabfe756053fba2acea3e497fe06014ca72ea15594d8d59f8097f': 'beginner',
+      '5fbb7ab3963ddf241e8fc7dc9765e854f928de80f7cfecdc767eb2fa8e523af6': 'beginner',
+      'ed0ee90d83678b7a05311942ccb05adc6543327110e4072ebaa6f5cef8a0ce73': 'beginner',
+      '0e8ccc370e88a1f026a4bb1dff0aab675c037c2c5d83520c2419290ba2e8576c': 'beginner',
+      '684df9272dc9ad87ae7dc72404853ab0889f5f3799157b880dd63b97f00f1883': 'beginner',
+      '65c156dd09df47927a6850cef00e8e52bd92a27f833724ea5395fe1fb2b76236': 'beginner',
+      '62d5240a2da4540f7c3199bb521bdd5acc2dcd4f5763f3416b85bdae59a37ca7': 'beginner',
+      '4cde3ac18d8546a2b79614df01d6524eaa79f83a873c283d78e4eb4fa23313e5': 'beginner',
+      '7a2f82c44f7ecc68cdc696dc2b822c8e0108dd3eaf5f4a84ccd74d41f1a6b856': 'beginner',
+      '3a23acd100bb37f1fb967d46caef98433b7f4d876c33cfe3eb481fabf1bf6d73': 'beginner',
+      '402fdca883d69a9560d3b542f17e972549da7372ab555153749d93e203492037': 'beginner',
+      '37f91d1b2bd7a165e2f8c0ae70c19270b41b430bc9f5bb2699c222d4328b4edb': 'beginner',
+      '3f3447f85baf2d7e4440c4b05ab930d0e824055761858f58d9448b35bbfefd8b': 'beginner',
+      '618f283c8b7a39086a1829cacdeadc5b14c5a874a90d46da18ca5098bd67c22f': 'beginner',
+      'ce31074f4c7819722e037c8760190a489888a80cc8d799cebf3fa484be8308e1': 'beginner',
+      '01af4300fd6e576548dabbdd5ec59a3a9c10bcd0efc87ebcb370d504896b9d5d': 'beginner',
+      'f5fbd3870a626f64b2ff476e60b5d3d5cfddf4ed363e92b4ceae64c4ab026891': 'beginner',
+      '16321d7bf394630074f7a6b180b32e0a46d6b6e0b7540f434310c0552fd5081c': 'beginner',
+      'c752df0ce42f848844bff6f5f1890186131a8b236d4afbbc52bf71fb6478685f': 'beginner',
+      'afe384332b3e3357b1c715e642078a50b7a25325fb113ce53ec37fe0eb18e1d8': 'beginner',
+      'be36d5c8242e8a4ac61ca7c57e4f428b94dbaf5a90a3bf2de9aee628fd8812ec': 'beginner',
+      '44f3d5692c2557b1a8258dc66c59417f830b56e0e8285189d6cece35d6b3d4ad': 'beginner',
+      'c766e1ede2bafb258b6e7e759829dc38eab5879331cd0f34a9fe082562dffe9f': 'beginner',
+      '1468a4d0f615cb608301b2e989147527bbc40737cd9c6abdcbee50038f29eeb1': 'beginner',
+      'a5257fb7588abb57257ad89661c385b9199da2ed7901d98f19648ea887e3f929': 'beginner',
+      '4d15e7f804ad21cc4bfba78fa1363e9e86592f8f6f1a8a50e0fcd05a031ef268': 'beginner',
+      '4bbd5c4ebb97c60553f9e3fe2446e00857eba2af6f3f6c08e6d42a8c98c13f5f': 'beginner',
+      '3cb752cca66d93a1949911c52b6732fafd31ef3f39d9af4f2eadef48032072b6': 'beginner',
+      'e062e9ef70146a566306a9a718d16a316967ac10a5098add05a1261cfeb51b24': 'beginner',
+      'c76f5aeba347f21dbd9ed886948e52cde0cede4a186095ca5f42680c7d5c39f5': 'beginner',
+      'a112884a80e10319b1b7ce4db6413c6e6003ec29afcad2db4e33af72ec1eb934': 'beginner',
+      '9b3fb88afab1faaaf962eb653a5332712c3b1b358ca9604554e69824af6cee51': 'beginner',
+      '654389886bfa457f694b24f579e8dca6a270a08b3f7e07989e3a44142d9071d5': 'beginner',
+      '20d2889c3f5b6276adec0a08ebc4bc902ac9056b66aa83f2e618363326a5da95': 'beginner',
+      'a155770a0abfd6ec1a9f2a47afbf711ba7919b4b05191f6a98104690cf2af347': 'beginner',
+      '47151e310472460db9e07455d9ddf77d002560f634ac1548d7a9336087405ed6': 'beginner',
+      '302f1204b322d2fd69af0f37cf091671e09160f81397e5236f7ccebc5a79c7a6': 'beginner',
+      '61379f6f6bfde7f4da8d78129def3b14f8e7ca246411ba2f160a66a6d85021f0': 'beginner',
+      'a980b276c990782f7673455c239671405627faf64a04ef4dd0fbf3b760212f83': 'beginner',
+      'b6a790427d51a622700865ace702219eb7613d4b873a095abf704dd8a38f0cb6': 'beginner',
+      'e5a51784dc3af0e2c8bec8f0bea263bd676d6066ce41f7995512b1b1ef95e794': 'beginner',
+      '88d9abb02bd1605ced9ab1c423561f1aeeb8d9677bb3adbcdc3630c1e4df0303': 'beginner',
+      '2c7990de9c23e0c6853748ab5b67cba813f83a1f1cfecd83edd778aa318653e8': 'beginner',
+      '9ef852a33cffc9e47ef7eea96e594124b4119aee8528e747c4ce633491cde43a': 'beginner',
+      '131b16d83e76c5b6b836e60d5b5398e9a0c072e2b78ec6b2720456bbe82234f7': 'beginner',
+      'f6bd3700a22c5edfd75221a68946b6a72fa0d6575a44c9ac20fa83f5b0058cff': 'beginner',
+      '3b7629e9eeaf8c1b801eaea0d830f2dea0360cca78b9dc6d658bf905d085b996': 'beginner',
+      '03c17f6989b5215e7fe323449c816727c7adcf983ed45510d61501e7301b87e8': 'beginner',
+      'c9decdde0e0d942dfc708e4b3fc940b90200e2a6fde4e9ab69f8de31632aef17': 'beginner',
+      '06f4a3294a6ebc0a65dada154532ea8436731644c3e614b1c1bb67169cea46fb': 'beginner',
+      '94b258d9d47ba608572bb93e9b6e12a78154fb2f9d03776c241cecb8835e976c': 'beginner',
+      'd5451f1aea9babfc2457578b209ed81074ca2a0a205c73226fc224efbb6ca984': 'beginner',
+      'be1bb3a525a7196d7d6e027b90025e4dba6b565769b3727cc9ff8e28189e64e1': 'beginner',
+      '914a1db82c215b81a6eb7dba62ed941ebbc6364c501108500f29c215a524a228': 'beginner',
+      'f84b79138f361d9f2f69bd574d2cf62a3dd62b16a8928f0492134f066b1684f7': 'beginner',
+      'cd49a0ce776dddf0eba6ead187be0ffe0941bc678572bb29df50140cc1257343': 'beginner',
+      '698bc056a9f0264b332a54f5a0e45a76ebe31e17b542f422354f62bffd540060': 'beginner',
+      'ce8bda8dfcb275e7d8e6c8437b5777ca628ed7f2446736aa50b3d5b2bbb93748': 'beginner',
+      'd1ed05b148cdd8013924d3d12e1013bbf82838a0bb8ec66f2d7616e030765f16': 'beginner',
+      'edd1052f5c5417abccdf45763fe954672e89ae38e6b98ccc156f13a4bca0a03b': 'beginner',
+      '6e3098284680ece94e64d90cfb6d026998b4114459955eb4396ba98804ae8746': 'beginner',
+      '77ac7e33a17af9cdc29d83e50b3768fd0a3a1682cc5cfad26c1df22b0b0a5023': 'beginner',
+      '6389bc73587aae30458d77f8d9ea7d08f2e5852916e42e2deacd87e8a66c1c73': 'beginner',
+      '1d7a891c6c434d1604726057eb62fcdf2da7ab2d42f24e1b6b390ffbf66039f0': 'beginner',
+      '10fa23f940cd053ad0ac3a9ad0b2e1ee039b033165908a0b71eea0b99076525e': 'beginner',
+      '5276148d9be04f415f6ac3f4a18ceb157c8ad3aae4b6ee5a0c0d308c94d5415d': 'beginner',
+      '7db67fa143d12f034223e684e18f5459dd3afe10cff30235acd6e3437a146910': 'beginner',
+      '59de8afb115525074bf98ad406f885e056bccdd7e2436d4f58606371fe27caa0': 'beginner',
+      '1c985f1a07945d9e23fe4f958926c53cc0829c96d8fef50c88b94a699dcf1afa': 'beginner',
       '1f2376a9ccbcf8c6ec11ae18a87bcba8971e4a58148d5b12b84de20b73d23ee4': 'advanced',
       'd3203da432f8863d3681dd2e25c14ae50cec1ba5a097bf5e00f17136b1d3f0cf': 'advanced',
       '8e21b6ec8a6e3813c3f48a5616328b4985b3fc4a845563abc9f53cb2bfb543ba': 'advanced',
